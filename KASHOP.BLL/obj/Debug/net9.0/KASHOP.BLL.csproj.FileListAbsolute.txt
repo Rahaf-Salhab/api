@@ -13,3 +13,4 @@ C:\Users\lenovo\OneDrive\Desktop\web\Api\KASHOP\KASHOP.BLL\obj\Debug\net9.0\KASH
 C:\Users\lenovo\OneDrive\Desktop\web\Api\KASHOP\KASHOP.BLL\obj\Debug\net9.0\refint\KASHOP.BLL.dll
 C:\Users\lenovo\OneDrive\Desktop\web\Api\KASHOP\KASHOP.BLL\obj\Debug\net9.0\KASHOP.BLL.pdb
 C:\Users\lenovo\OneDrive\Desktop\web\Api\KASHOP\KASHOP.BLL\obj\Debug\net9.0\ref\KASHOP.BLL.dll
+C:\Users\lenovo\OneDrive\Desktop\web\Api\KASHOP\KASHOP.BLL\obj\Debug\net9.0\KASHOP.BLL.sourcelink.json
