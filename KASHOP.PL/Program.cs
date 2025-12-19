@@ -1,4 +1,3 @@
-
 using KASHOP.BLL.Service;
 using KASHOP.DAL.Data;
 using KASHOP.DAL.Models;
@@ -6,6 +5,7 @@ using KASHOP.DAL.Repository;
 using KASHOP.DAL.Utils;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -36,7 +36,20 @@ namespace KASHOP.PL
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
           options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             //identity+Token
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(Options =>
+            {
+                Options.Password.RequireDigit = true;
+                Options.Password.RequireLowercase = true;
+                Options.Password.RequireUppercase = true;
+                Options.Password.RequireNonAlphanumeric = true;
+                Options.Password.RequiredLength = 8;
+
+                Options.User.RequireUniqueEmail = true;
+                Options.Lockout.MaxFailedAccessAttempts = 5;
+                Options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                Options.SignIn.RequireConfirmedEmail = true;
+
+            })
             .AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
             //token
             builder.Services.AddAuthentication(opt => {
@@ -113,6 +126,8 @@ namespace KASHOP.PL
 
             builder.Services.AddScoped<ISeedData, RoleSeedData>();
             builder.Services.AddScoped<ISeedData, UserSeedData>();
+            builder.Services.AddTransient<IEmailSender, EmailSender>();
+
 
 
 

@@ -31,13 +31,45 @@ namespace KASHOP.PL.Areas.Identity
         [HttpPost("Register")]
         public async Task<IActionResult> Register(RegisterRequest request)
         {
-           var result = await authenticationService.RegisterAsync(request);
-            if ( ! result.Success)
-            { 
-               return BadRequest(result);
+            var result = await authenticationService.RegisterAsync(request);
+            if (!result.Success)
+            {
+                return BadRequest(result);
             }
             return Ok(result);
         }
 
+        [HttpGet("ConfirmEmail")]
+
+        public async Task<IActionResult> ConfirmEmail(string token, string userId)
+        {
+            var result = await authenticationService.ConfirmEmailAsync(token, userId);
+
+            return Ok(result);
+        }
+        [HttpPost("SendCode")]
+        public async Task<IActionResult> RequestPasswordReset(ForgotPasswordRequest request)
+        {
+            var result = await authenticationService.RequestPasswordReset(request);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+             return Ok(result);
+
+        }
+
+
+        [HttpPatch("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+        {
+            var result = await authenticationService.ResetPassword(request);
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
+
+        }
     }
 }
