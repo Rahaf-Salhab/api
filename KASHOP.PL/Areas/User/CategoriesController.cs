@@ -4,6 +4,7 @@ using KASHOP.PL.Resources;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using System.Threading.Tasks;
 
 namespace KASHOP.PL.Areas.User
 {
@@ -20,16 +21,16 @@ namespace KASHOP.PL.Areas.User
             this.localizer = localizer;
         }
         [HttpGet("")]
-        public IActionResult Index()
+        public IActionResult Index([FromQuery] string lang = "en")
         {
-            var response = category.GetAllCategories();
+            var response = category.GetAllCategoriesForUser(lang);
             return Ok(new {message= localizer["Success"].Value, response});
         }
         [HttpPost("")]
-        public IActionResult Create(CategoryRequest request)
+        public async Task<IActionResult> Create(CategoryRequest request)
         {
-            var response = category.CreateCategory(request);
-            return Ok(new { message = localizer["Success"].Value });
+            var response = await category.GetAllCategoriesForUser();
+            return Ok(new { message = localizer["Success"].Value , response});
         }
     }
 }

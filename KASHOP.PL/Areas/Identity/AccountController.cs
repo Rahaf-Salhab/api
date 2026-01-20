@@ -39,6 +39,7 @@ namespace KASHOP.PL.Areas.Identity
             return Ok(result);
         }
 
+
         [HttpGet("ConfirmEmail")]
 
         public async Task<IActionResult> ConfirmEmail(string token, string userId)
@@ -70,6 +71,16 @@ namespace KASHOP.PL.Areas.Identity
             }
             return Ok(result);
 
+        }
+        [HttpPatch("RefreshToken")]
+        public async Task<IActionResult> RefreshToken(TokenApiModel request)
+        {
+            var result = await authenticationService.RefreshTokenAsync(request);
+            if (!result.Success) 
+            { 
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
     }
 }

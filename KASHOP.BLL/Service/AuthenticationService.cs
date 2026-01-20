@@ -4,6 +4,7 @@ using KASHOP.DAL.Models;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -22,10 +23,12 @@ namespace KASHOP.BLL.Service
         private readonly IConfiguration configuration;
         private readonly IEmailSender emailSender;
         private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly ITokenService tokenService;
 
         public AuthenticationService(UserManager<ApplicationUser> userManager , IConfiguration configuration , 
           IEmailSender emailSender ,
-          SignInManager<ApplicationUser> signInManager
+          SignInManager<ApplicationUser> signInManager,
+          ITokenService tokenService 
           
             )
         {
@@ -33,6 +36,7 @@ namespace KASHOP.BLL.Service
             this.configuration = configuration;
             this.emailSender = emailSender;
             this.signInManager = signInManager;
+            this.tokenService = tokenService;
         }
         public async  Task<LoginResponse> LoginAsync(LoginRequest loginRequest)
         {
@@ -80,12 +84,19 @@ namespace KASHOP.BLL.Service
                         Message = " invalid password"
                     };
                 }
-                 
+
+                var accessToken = await tokenService.GenerateAccessToken(user);
+                var refreshToken =  tokenService.GenerateRefreshToken();
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+                await userManager.UpdateAsync(user);
+
                 return new LoginResponse()
                 {
                     Success = true,
                     Message = "Login successful",
-                    AccessToken = await GenerateAccessToken(user)
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken
                 };
             }
             catch(Exception ex) 
@@ -152,27 +163,7 @@ namespace KASHOP.BLL.Service
               
         }
 
-        private async Task<string> GenerateAccessToken(ApplicationUser user)
-        {
-            var userClaims = new List<Claim>()
-            {
-                new Claim(ClaimTypes.NameIdentifier , user.Id),
-                new Claim(ClaimTypes.Name , user.UserName),
-                new Claim(ClaimTypes.Email , user.Email),
-
-            };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: configuration["Jwt:Issuer"],
-                audience: configuration["Jwt:Audience"],
-                claims: userClaims,
-                expires: DateTime.UtcNow.AddMinutes(10),
-                signingCredentials: creds);
-
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+       
         public async Task<ForgotPasswordResponse> RequestPasswordReset(ForgotPasswordRequest request)
         {
             var user = await userManager.FindByEmailAsync(request.Email);
@@ -241,8 +232,11 @@ namespace KASHOP.BLL.Service
                     Errors = result.Errors.Select(e => e.Description).ToList()
                 };
             }
-
-             await emailSender.SendEmailAsync(request.Email, "change password", $"<p>your password is changed</p>");
+            
+           await emailSender.SendEmailAsync(request.Email, "change password", $"<p>your password is changed</p>");
+           
+            user.CodeResetPassword = null;
+            await userManager.UpdateAsync(user);
 
             return new ResetPasswordResponse
             {
@@ -250,6 +244,37 @@ namespace KASHOP.BLL.Service
                 Message = "password reset Successfully"
             };
 
+        }
+
+
+        public async Task<LoginResponse> RefreshTokenAsync(TokenApiModel request)
+        {
+            string accessToken = request.AccessToken;
+            string refreshToken = request.RefreshToken;
+
+            var principal = tokenService.GetPrincipalFromExpiredToken(accessToken);
+            var userName = principal.Identity.Name;
+            var user = await userManager.Users.FirstOrDefaultAsync(u=>u.UserName == userName);
+            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.UtcNow) 
+            {
+                return new LoginResponse()
+                {
+                    Success = false,
+                    Message = "invalid client request"
+                };
+            }
+            var newAccessToken = await tokenService.GenerateAccessToken(user);
+            var newRefreshToken = tokenService.GenerateRefreshToken();
+            user.RefreshToken = newRefreshToken;
+
+            await userManager.UpdateAsync(user);
+            return new LoginResponse()
+            {
+                Success = true,
+                Message = "Token Refreshed",
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshToken
+            };
         }
 
     }

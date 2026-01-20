@@ -18,17 +18,35 @@ namespace KASHOP.DAL.Repository
             this.context = context;
         }
 
-        public Category Create(Category Request)
+        public async Task<Category> CreateAsync(Category Request)
         {
-            context.Add(Request);
-            context.SaveChanges();
+           await context.AddAsync(Request);
+           await  context.SaveChangesAsync();
             return Request;
          }
 
-        public List<Category> GetAll()
+        public async Task<List<Category>> GetAllAsync()
         {
-            return context.Categories.Include(c => c.Translations).ToList();
+            return await context.Categories.Include(c => c.Translations).Include(c=>c.User)
+                .ToListAsync();
 
         }
+      public async Task<Category?> FindByIdAsync(int id)
+        {
+            return await context.Categories.Include(c => c.Translations)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+        public async Task DeleteAsync(Category category)
+        {
+            context.Categories.Remove(category);
+            await context.SaveChangesAsync();
+        }
+        public async Task<Category?> UpdateAsync(Category category)
+        {
+            context.Categories.Update(category);
+            await context.SaveChangesAsync();
+            return category;
+        }
+
     }
 }

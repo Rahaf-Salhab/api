@@ -1,3 +1,4 @@
+using KASHOP.BLL.MapsterConfigurations;
 using KASHOP.BLL.Service;
 using KASHOP.DAL.Data;
 using KASHOP.DAL.Models;
@@ -64,6 +65,7 @@ namespace KASHOP.PL
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
+            ClockSkew = TimeSpan.Zero,
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
@@ -118,18 +120,12 @@ namespace KASHOP.PL
                 }
                 ); 
             });
+
             builder.Services.AddSwaggerGen();
-            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-            builder.Services.AddScoped< ICategoryService , CategoryService>();
-            builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
-
-            builder.Services.AddScoped<ISeedData, RoleSeedData>();
-            builder.Services.AddScoped<ISeedData, UserSeedData>();
-            builder.Services.AddTransient<IEmailSender, EmailSender>();
-
-
-
+            AppConfiguration.Config(builder.Services);
+            //mapster
+            MapsterConfig.MapsterConfRegister();
 
             var app = builder.Build();
             app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
@@ -145,9 +141,10 @@ namespace KASHOP.PL
 
             }
 
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
-
             app.UseAuthorization();
+
 
             using (var scope = app.Services.CreateScope())
             {
