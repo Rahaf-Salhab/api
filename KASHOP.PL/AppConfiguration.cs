@@ -2,7 +2,7 @@
 using KASHOP.DAL.Repository;
 using KASHOP.DAL.Utils;
 using Microsoft.AspNetCore.Identity.UI.Services;
-
+ 
 
 namespace KASHOP.PL
 {
@@ -24,6 +24,14 @@ namespace KASHOP.PL
 
             Services.AddScoped<ITokenService, TokenService>();
 
+            Services.AddScoped<ICartService, CartService>();
+            Services.AddScoped<ICartRepository, CartRepository>();
+
+            Services.AddScoped<ICheckoutService, CheckoutService>();
+
+            Services.AddScoped<IOrderRepository, OrderRepository>();
+
+            Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 
 
 

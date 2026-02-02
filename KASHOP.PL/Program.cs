@@ -1,3 +1,4 @@
+using KASHOP.BLL;
 using KASHOP.BLL.MapsterConfigurations;
 using KASHOP.BLL.Service;
 using KASHOP.DAL.Data;
@@ -11,6 +12,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Stripe;
 using System.Globalization;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,12 +32,14 @@ namespace KASHOP.PL
             builder.Services.AddOpenApi();
            
             builder.Services.AddLocalization(options => options.ResourcesPath = "");
-
-            //   builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            //  options.UseSqlServer(builder.Configuration.GetSection("ConnectionStrings")["DefaultConnection"]));
-
+  
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
           options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            //stripe
+            builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"]; 
+
             //identity+Token
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(Options =>
             {
