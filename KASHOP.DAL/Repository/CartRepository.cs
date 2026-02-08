@@ -50,6 +50,12 @@ namespace KASHOP.DAL.Repository
             context.Carts.RemoveRange(items);
             await context.SaveChangesAsync();
         }
-        
+        public async Task DeleteAsync(Cart cart)
+        {
+            context.Carts.Remove(cart);
+            await context.SaveChangesAsync();
+        }
+
+
     }
 }

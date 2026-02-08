@@ -28,11 +28,38 @@ namespace KASHOP.DAL.Repository
         {
             return await context.Orders.FirstOrDefaultAsync(o => o.SessionId == sessionId);
          }
+
         public async Task<Order> UpdateAsync(Order order)
         {
             context.Orders.Update(order);
             await context.SaveChangesAsync();
             return order;
         }
+        public async Task<List<Order>> GetOrderByStatusAsync(OrderStatusEnum status)
+        {
+            return await context.Orders
+                .Where(o => o.OrderStatus == status)
+                .Include(o => o.User)
+                 .ToListAsync();
+         }
+        public async Task<bool> HasUserDeliveredOrderForProduct(string userId, int productId)
+        {
+            return await context.Orders
+                .Where(o => o.UserId == userId && o.OrderStatus == OrderStatusEnum.Delivered)
+                .SelectMany(o => o.OrderItems)
+                .AnyAsync(oi => oi.ProductId  == productId);
+        }
+
+        public async Task<Order?> GetOrderByIdAsync(int orderId)
+        {
+            return await context.Orders
+                .Include(o => o.User)
+                .Include(o => o.OrderItems)
+                .ThenInclude(o => o.Product)
+                .FirstOrDefaultAsync(o => o.Id == orderId);
+ 
+        }
+
+        
     }
 }

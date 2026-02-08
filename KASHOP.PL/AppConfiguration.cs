@@ -33,6 +33,21 @@ namespace KASHOP.PL
 
             Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 
+            Services.AddScoped<IOrderService, OrderService>();
+
+            Services.AddScoped<IManageUserService, ManageUserService>();
+
+            Services.AddScoped<IReviewService, ReviewService>();
+            Services.AddScoped<IReviewRepository, ReviewRepository>();
+
+
+
+
+            //Exception handling
+            Services.AddExceptionHandler<GlobalExceptionHandler>();
+            Services.AddProblemDetails();
+
+
 
 
         }

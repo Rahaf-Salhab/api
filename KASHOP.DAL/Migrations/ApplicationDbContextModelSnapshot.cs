@@ -207,6 +207,9 @@ namespace KASHOP.DAL.Migrations
                     b.Property<int>("PaymentMethod")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PaymentStatus")
+                        .HasColumnType("int");
+
                     b.Property<string>("SessionId")
                         .HasColumnType("nvarchar(max)");
 
@@ -350,6 +353,40 @@ namespace KASHOP.DAL.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductTranslations");
+                });
+
+            modelBuilder.Entity("KASHOP.DAL.Models.Review", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Comment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -597,6 +634,25 @@ namespace KASHOP.DAL.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("KASHOP.DAL.Models.Review", b =>
+                {
+                    b.HasOne("KASHOP.DAL.Models.Product", "product")
+                        .WithMany("Reviews")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("KASHOP.DAL.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+
+                    b.Navigation("product");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -662,6 +718,8 @@ namespace KASHOP.DAL.Migrations
 
             modelBuilder.Entity("KASHOP.DAL.Models.Product", b =>
                 {
+                    b.Navigation("Reviews");
+
                     b.Navigation("SubImages");
 
                     b.Navigation("Translations");

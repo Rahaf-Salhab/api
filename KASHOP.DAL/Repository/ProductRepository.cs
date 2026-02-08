@@ -33,6 +33,9 @@ namespace KASHOP.DAL.Repository
         public async Task<Product?> FindByIdAsync(int id)
         {
             return await context.Products.Include(c => c.Translations)
+                .Include(c => c.SubImages)
+                .Include(c => c.Reviews)
+                .ThenInclude(r => r.User)
                 .FirstOrDefaultAsync(c => c.Id == id);
         }
         //put products in server Ram
