@@ -12,8 +12,9 @@ namespace KASHOP.DAL.Models
         public decimal DisCount { get; set; }
         public int Quantity { get; set; }
         public double Rate { get; set; }
+
         public string MainImage { get; set; }
-        public int CategoryId { get; set; }
+         public int CategoryId { get; set; }
         public Category Category { get; set; }
         public List<ProductTranslation> Translations { get; set; }
         public List<ProductImage> SubImages { get; set; }

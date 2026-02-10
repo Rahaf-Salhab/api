@@ -68,6 +68,7 @@ namespace KASHOP.DAL.Data
               .HasForeignKey(c => c.UserId)
               .OnDelete(DeleteBehavior.NoAction);
 
+
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

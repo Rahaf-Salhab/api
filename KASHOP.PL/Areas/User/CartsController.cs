@@ -23,6 +23,7 @@ namespace KASHOP.PL.Areas.User
             this.cartService = cartService;
             this.localizer = localizer;
         }
+        [Authorize]
 
         [HttpPost("")]
         public async Task<IActionResult> AddToCart([FromBody] AddToCartRequest request)
